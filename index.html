@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LITTLE RP - Новая Эра</title>
+    <style>
+        :root {
+            --bg-color: #080b10;
+            --card-color: #121824;
+            --accent-color: #3b82f6; 
+            --accent-secondary: #8b5cf6; 
+            --text-color: #ffffff;
+            --text-secondary: #94a3b8;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --admin-color: #ec4899; 
+            --rp-color: #d8b4fe;
+            --fraction-color: #06b6d4;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding-bottom: 90px;
+        }
+
+        /* Экран авторизации / регистрации */
+        #reg-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-color);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .header {
+            width: 90%;
+            max-width: 400px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .logo { font-weight: 900; font-size: 24px; letter-spacing: 1px; color: #fff; }
+        .logo span { color: var(--accent-secondary); }
+        
+        .balance { 
+            background: linear-gradient(135deg, #1e293b, #1d4ed8); 
+            color: #fff; 
+            padding: 8px 16px; 
+            border-radius: 20px; 
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .screen { width: 90%; max-width: 400px; display: none; flex-direction: column; gap: 15px; margin-top: 10px; }
+        .screen.active { display: flex; }
+
+        .card { background-color: var(--card-color); border-radius: 16px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border: 1px solid #1e293b; }
+        .card-title { color: var(--text-secondary); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 15px; }
+        .info-row:last-child { margin-bottom: 0; }
+        .info-label { color: var(--text-secondary); }
+        .info-value-green { color: var(--accent-color); font-weight: bold; }
+
+        .main-btn { 
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary)); 
+            color: #fff; 
+            border: none; 
+            border-radius: 12px; 
+            padding: 18px; 
+            font-size: 18px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            width: 100%; 
+            transition: transform 0.1s, box-shadow 0.2s; 
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+        .main-btn:active { transform: scale(0.98); }
+
+        .select-btn { background-color: #1e293b; color: var(--text-color); border: 1px solid #334155; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 8px; font-size: 14px; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+        .select-btn:hover { background-color: #334155; }
+        .select-btn.disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-danger { background-color: #311517; border-color: #7f1d1d; color: var(--danger-color); }
+        .btn-danger:hover { background-color: #451a1c; }
+
+        input { background-color: #0f172a; border: 1px solid #334155; color: #fff; padding: 12px; border-radius: 8px; width: calc(100% - 26px); margin-bottom: 12px; font-size: 14px; }
+
+        .chat-container { display: flex; flex-direction: column; height: 220px; background-color: #020617; border: 1px solid #1e293b; border-radius: 12px; padding: 10px; margin-top: 5px; }
+        .chat-messages { flex-grow: 1; overflow-y: auto; font-size: 13px; display: flex; flex-direction: column; gap: 6px; padding-right: 5px; }
+        .chat-input-row { display: flex; gap: 8px; margin-top: 10px; }
+        .chat-input-row input { margin-bottom: 0; flex-grow: 1; }
+        
+        .chat-send-btn { background-color: #1e293b; color: #fff; border: 1px solid #334155; border-radius: 6px; padding: 0 15px; cursor: pointer; }
+
+        .nav-bar { position: fixed; bottom: 0; width: 100%; max-width: 400px; background-color: var(--card-color); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #1e293b; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-secondary); font-size: 11px; cursor: pointer; background: none; border: none; }
+        .nav-item.active { color: var(--accent-secondary); font-weight: bold; }
+        .nav-icon { font-size: 18px; margin-bottom: 2px; }
+    </style>
+</head>
+<body>
+
+    <!-- ЭКРАН РЕГИСТРАЦИИ И ВХОДА -->
+    <div id="reg-screen">
+        <div class="card" style="width: 85%; max-width: 350px; text-align: center;">
+            <div class="logo" style="margin-bottom: 15px;">LITTLE <span>RP</span></div>
+            <div id="auth-title" class="card-title">Создание персонажа</div>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Введите ваши данные для входа на сервер:</p>
+            
+            <input type="text" id="reg-username" placeholder="Никнейм (Например: Ivan_Love)" style="text-align: center;">
+            <input type="password" id="reg-password" placeholder="Введите пароль" style="text-align: center;">
+            
+            <button class="main-btn" onclick="registerUser()" style="padding: 12px; font-size: 15px; margin-top: 5px;">Создать / Войти</button>
+        </div>
+    </div>
+
+    <!-- ИГРОВАЯ ШАПКА -->
+    <div class="header">
+        <div class="logo">LITTLE <span>RP</span></div>
+        <div class="balance" id="balance-display">0 $</div>
+    </div>
+
+    <!-- ЭКРАН: РАБОТА -->
+    <div id="screen-job" class="screen active">
+        <div class="card">
+            <div class="card-title">Текущая подработка</div>
+            <div class="info-row"><span class="info-label">Профессия</span><span id="job-name" style="font-weight: bold;">-</span></div>
+            <div class="info-row"><span class="info-label">Плата за клик</span><span class="info-value-green" id="job-reward">-</span></div>
+        </div>
+
+        <button class="main-btn" id="click-btn">Работать ⛏️</button>
+
+        <div class="card">
+            <div class="card-title">Список доступных работ</div>
+            <div id="jobs-list" style="display: flex; flex-direction: column; gap: 4px;"></div>
+        </div>
+    </div>
+
+    <!-- ЭКРАН: ПРОФИЛЬ -->
+    <div id="screen-profile" class="screen">
+        <div class="card">
+            <div class="card-title">Мой профиль</div>
+            <div class="info-row"><span class="info-label">Никнейм</span><span id="name-display" style="font-weight: bold; color: var(--accent-color);">-</span></div>
+            <div class="info-row"><span class="info-label">Ранг / Должность</span><span id="rank-display" style="font-weight: bold;">-</span></div>
+            <div class="info-row"><span class="info-label">Организация</span><span id="fraction-display" style="font-weight: bold; color: var(--fraction-color);">Гражданский</span></div>
+            <div class="info-row"><span class="info-label">Супруг(а)</span><span id="spouse-display" style="font-weight: bold;">Нет</span></div>
+            <div class="info-row"><span class="info-label">Мой транспорт</span><span id="car-display" style="font-weight: bold; color: var(--warning-color);">Пешком 🚶</span></div>
+        </div>
+
+        <!-- ЕЖЕДНЕВНЫЙ ПОДАРОК -->
+        <div class="card" style="background: linear-gradient(135deg, #131520, #1e1b4b); border: 1px solid var(--accent-secondary);">
+            <div class="card-title" style="color: var(--rp-color);">🎁 Ежедневный бонус</div>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 0;">Получайте бесплатную валюту каждые 24 часа за активность!</p>
+            <button id="bonus-btn" class="main-btn" onclick="claimDailyBonus()" style="padding: 12px; font-size: 14px; background: var(--accent-secondary);">Забрать подарок</button>
+            <p id="bonus-timer" style="font-size: 12px; color: var(--warning-color); text-align: center; margin: 8px 0 0 0; display: none;"></p>
+        </div>
+
+        <div class="card" id="marriage-box">
+            <div class="card-title">Семейное положение</div>
+            <div id="marry-actions">
+                <input type="text" id="partner-name" placeholder="Имя партнера (Nick_Name)">
+                <button class="select-btn" onclick="marry()" style="justify-content: center; background: #1e1b4b; color: #a5b4fc; border-color: #3730a3;">💍 Пожениться (1,000 $)</button>
+            </div>
+            <div id="divorce-actions" style="display: none;">
+                <button class="select-btn btn-danger" onclick="divorce()" style="justify-content: center;">💔 Подать на развод (500 $)</button>
+            </div>
+        </div>
+
+        <div class="card" id="rank-buy-card">
+            <div class="card-title">Повышение должностей</div>
+            <button class="select-btn" onclick="buyRank('Заместитель', 5000)">👔 Стать Заместителем <span>5,000 $</span></button>
+            <button class="select-btn" onclick="buyRank('Лидер', 15000)">👑 Стать Лидером <span>15,000 $</span></button>
+        </div>
+    </div>
+
+    <!-- ЭКРАН: АВТОСАЛОН -->
+    <div id="screen-cars" class="screen">
+        <div class="card">Элитный автосалонПокупайте крутые тачки, чтобы гонять по штату LITTLE RP!💬 Игровой RP ЧатДобро пожаловать на LITTLE RP! Команды: /me, /do, /inviteОтправитьПанель управления фракцией/invite [Ник_Игрока] [Организация]Панель Создателя 🔴СтатусKamil_Milano (Разработчик)Выдать 1 млн $Сбросить сейв👤Профиль💼Работа🚘Машины💬Чат⭐Админconst OWNER_NICK = "Kamil_Milano";let gameState = {username: "",password: "",balance: 2850,currentJob: 'miner',rank: 'Обычный игрок',fraction: 'Гражданский',spouse: null,car: null,lastBonusTime: 0};const jobs = {miner: { name: 'Шахтер', reward: 150, btnText: 'Добывать руду ⛏️', req: 'all' },courier: { name: 'Курьер', reward: 250, btnText: 'Доставить посылку 📦', req: 'all' },bus: { name: 'Водитель автобуса', reward: 500, btnText: 'Вести автобус по маршруту 🚌', req: 'sub_leader' },trucker: { name: 'Дальнобойщик', reward: 1200, btnText: 'Доставить ценный груз 🚚', req: 'sub_leader' },incass: { name: 'Инкассатор', reward: 2500, btnText: 'Перевезти деньги в банк 💰', req: 'leader' },fsb: { name: 'Сотрудник ФСБ', reward: 5000, btnText: 'Задержать преступника 👮', req: 'leader' },admin: { name: 'Администратор сервера', reward: 15000, btnText: 'Следить за порядком 🖥️', req: 'owner' }};const vehicleShop = [{ name: "VAZ 2107", price: 3000, icon: "🚗" },{ name: "Lada Priora", price: 7500, icon: "🚘" },{ name: "BMW M5 E60", price: 45000, icon: "🏎️" },{ name: "Mercedes G63 AMG", price: 120000, icon: "🚙" },{ name: "Bugatti Chiron", price: 500000, icon: "⚡" }];const botNicks = ["Dmitry_Gordon", "Alina_Rova", "Stas_Baretsky", "Maxim_Volkov", "Egor_Kreed"];const botPhrases = ["Кто в ГИБДД едет? Довезите плиз","Куплю машину БМВ М5, бюджет 300к","/me копает руду в шахте с усилием","/do Кирка в руке.","Лидеры ГБ зайдите в игру, мед карту надо!","У кого какой баланс уже на LITTLE RP?","Продам сим-карту '777777', цена договорная"];window.onload = function() {if (localStorage.getItem('littlerp_v6_save')) {gameState = JSON.parse(localStorage.getItem('littlerp_v6_save'));document.getElementById('reg-screen').style.display = 'none';checkAdminAndLeaderStatus();updateUI();} else {document.getElementById('reg-screen').style.display = 'flex';}setInterval(simulateBotChat, 7000);setInterval(updateBonusTimer, 1000);};function registerUser() {const inputName = document.getElementById('reg-username').value.trim();const inputPass = document.getElementById('reg-password').value.trim();if (!inputName.includes('_') || inputName.length < 5) {alert("Ошибка! Формат никнейма: Имя_Фамилия (Пример: Ivan_Love)");return;}if (inputPass.length < 4) {alert("Ошибка! Пароль должен содержать от 4 символов.");return;}gameState.username = inputName;gameState.password = inputPass;if (gameState.username === OWNER_NICK) {gameState.rank = "[Основатель] Главный Администратор";gameState.fraction = "Администрация";gameState.currentJob = 'admin';} else {gameState.rank = "Обычный игрок";gameState.fraction = "Гражданский";gameState.currentJob = 'miner';}document.getElementById('reg-screen').style.display = 'none';checkAdminAndLeaderStatus();updateUI();}function checkAdminAndLeaderStatus() {const adminBtn = document.getElementById('admin-nav-btn');const rankBuy = document.getElementById('rank-buy-card');const commandsInfo = document.getElementById('leader-commands-info');if (gameState.username === OWNER_NICK) {adminBtn.style.display = 'flex';if(rankBuy) rankBuy.style.display = 'none';} else {adminBtn.style.display = 'none';if(rankBuy) rankBuy.style.display = 'block';}if (gameState.rank.includes('Лидер') || gameState.rank.includes('Заместитель') || gameState.username === OWNER_NICK) {commandsInfo.style.display = 'block';} else {commandsInfo.style.display = 'none';}}function hasJobAccess(jobKey) {const req = jobs[jobKey].req;if (req === 'all') return true;if (req === 'owner' && gameState.username === OWNER_NICK) return true;if (req === 'leader' && (gameState.rank.includes('Лидер') || gameState.username === OWNER_NICK)) return true;if (req === 'sub_leader' && (gameState.rank.includes('Лидер') || gameState.rank.includes('Заместитель') || gameState.username === OWNER_NICK)) return true;return false;}function updateUI() {document.getElementById('balance-display').innerText = gameState.balance.toLocaleString() + ' $';document.getElementById('name-display').innerText = gameState.username;document.getElementById('fraction-display').innerText = gameState.fraction;document.getElementById('car-display').innerText = gameState.car ? gameState.car : 'Пешком 🚶';const rankEl = document.getElementById('rank-display');rankEl.innerText = gameState.rank;if (gameState.username === OWNER_NICK) { rankEl.style.color = 'var(--admin-color)'; }else { rankEl.style.color = 'var(--warning-color)'; }const currentJobData = jobs[gameState.currentJob];document.getElementById('job-name').innerText = currentJobData.name;document.getElementById('job-reward').innerText = +${currentJobData.reward} $;document.getElementById('click-btn').innerText = currentJobData.btnText;const jobsListContainer = document.getElementById('jobs-list');jobsListContainer.innerHTML = '';for (const key in jobs) {const allowed = hasJobAccess(key);let lockText = allowed ? +${jobs[key].reward} $ : ' [Заблокировано]';const btn = document.createElement('button');btn.className = select-btn ${allowed ? '' : 'disabled'};btn.innerHTML = ${jobs[key].name} <span style="color: ${allowed ? 'var(--accent-color)' : 'var(--danger-color)'}">${lockText}</span>;btn.onclick = allowed ? function() { changeJob(key); } : function() { alert('У вас нет доступа к этой должности!'); };jobsListContainer.appendChild(btn);}const carsContainer = document.getElementById('cars-list');carsContainer.innerHTML = '';vehicleShop.forEach(car => {const isOwned = gameState.car && gameState.car.includes(car.name);const carBtn = document.createElement('button');carBtn.className = 'select-btn';carBtn.innerHTML = ${car.icon} ${car.name} <span>${isOwned ? '[Куплено]' : car.price.toLocaleString() + ' $'}</span>;carBtn.onclick = function() { buyCar(car.name, car.price, car.icon); };carsContainer.appendChild(carBtn);});if (gameState.spouse) {document.getElementById('spouse-display').innerText = gameState.spouse;document.getElementById('marry-actions').style.display = 'none';document.getElementById('divorce-actions').style.display = 'block';} else {document.getElementById('spouse-display').innerText = 'Нет';document.getElementById('marry-actions').style.display = 'block';document.getElementById('divorce-actions').style.display = 'none';}updateBonusTimer();localStorage.setItem('littlerp_v6_save', JSON.stringify(gameState));}document.getElementById('click-btn').addEventListener('click', () => {gameState.balance += jobs[gameState.currentJob].reward;updateUI();});function changeJob(jobKey) {if (jobs[jobKey] && hasJobAccess(jobKey)) { gameState.currentJob = jobKey; updateUI(); }}function buyRank(rankName, cost) {if (gameState.username === OWNER_NICK) return alert('Вы создатель проекта!');if (gameState.balance >= cost) {gameState.balance -= cost; gameState.rank = rankName; checkAdminAndLeaderStatus(); updateUI();alert(Вы успешно заняли пост: ${rankName});} else { alert('Недостаточно денег!'); }}function buyCar(name, price, icon) {if (gameState.car && gameState.car.includes(name)) return alert('У вас уже есть эта машина!');if (gameState.balance >= price) {gameState.balance -= price;gameState.car = ${icon} ${name};updateUI();alert(🚘 Поздравляем с покупкой нового автомобиля ${name}!);} else { alert('Недостаточно денег для покупки авто!'); }}function claimDailyBonus() {const now = Date.now();if (now - gameState.lastBonusTime < 24 * 60 * 60 * 1000) return alert("Вы уже забрали бонус!");const prize = Math.floor(Math.random() * 4000) + 1000;gameState.balance += prize; gameState.lastBonusTime = now; updateUI();alert(🎁 Вы получили ежедневный бонус: +${prize.toLocaleString()} $!);}function updateBonusTimer() {const timeLeft = (24 * 60 * 60 * 1000) - (Date.now() - gameState.lastBonusTime);const timerEl = document.getElementById('bonus-timer');const btnEl = document.getElementById('bonus-btn');if (timeLeft > 0) {btnEl.style.display = 'none'; timerEl.style.display = 'block';const h = Math.floor(timeLeft / 3600000), m = Math.floor((timeLeft % 3600000) / 60000), s = Math.floor((timeLeft % 60000) / 1000);timerEl.innerText = До следующего бонуса: ${h}ч ${m}м ${s}с;} else { btnEl.style.display = 'block'; timerEl.style.display = 'none'; }}function appendToChat(text, color = "#fff") {const chatBox = document.getElementById('chat-box');const msgNode = document.createElement('div');msgNode.style.color = color; msgNode.innerHTML = text; chatBox.appendChild(msgNode);chatBox.scrollTop = chatBox.scrollHeight;}function sendChatMessage() {const inputEl = document.getElementById('chat-input'); const text = inputEl.value.trim(); if (!text) return;inputEl.value = "";if (text.startsWith('/')) { handleRpCommand(text); } else {let pfx = "";if(gameState.username === OWNER_NICK) pfx = "[Основатель] ";else if(gameState.rank.includes("Лидер")) pfx = "[Лидер] ";else if(gameState.rank.includes("Заместитель")) pfx = "[Зам] ";appendToChat(${pfx}${gameState.username}: ${text}, "#ffffff");}}function handleRpCommand(commandStr) {const args = commandStr.split(' ');const cmd = args[0].toLowerCase();if (cmd === '/me') {const act = args.slice(1).join(' '); if (!act) return;appendToChat(* ${gameState.username} ${act}, "var(--rp-color)");} else if (cmd === '/do') {const st = args.slice(1).join(' '); if (!st) return;appendToChat(* ${st} (( ${gameState.username} )), "var(--rp-color)");} else if (cmd === '/invite') {if (!(gameState.rank.includes('Лидер') || gameState.rank.includes('Заместитель') || gameState.username === OWNER_NICK)) return appendToChat("Ошибка доступа!", "var(--danger-color)");const target = args[1], frac = args.slice(2).join(' '); if (!target || !frac) return;appendToChat([Фракция] ${gameState.username} принял ${target} в организацию ${frac}, "var(--fraction-color)");if (target === gameState.username) {let base = gameState.rank.includes("Заместитель") ? "Заместитель" : "Лидер";if (gameState.username === OWNER_NICK) base = "Основатель";gameState.fraction = frac; gameState.rank = ${base} ${frac}; updateUI();}}}function simulateBotChat() {const bot = botNicks[Math.floor(Math.random() * botNicks.length)], phr = botPhrases[Math.floor(Math.random() * botPhrases.length)];if (phr.startsWith('/me')) appendToChat(* ${bot} ${phr.replace('/me ', '')}, "var(--rp-color)");else if (phr.startsWith('/do')) appendToChat(* ${phr.replace('/do ', '')} (( ${bot} )), "var(--rp-color)");else appendToChat(${bot}: ${phr}, "#e2e8f0");}function marry() {const partner = document.getElementById('partner-name').value.trim(); if (!partner.includes('_')) return alert('Формат: Имя_Фамилия');if (gameState.balance >= 1000) { gameState.balance -= 1000; gameState.spouse = partner; updateUI(); alert(🎉 Брак с ${partner} заключен!); } else alert('Нужно 1,000 $');}function divorce() {if (gameState.balance >= 500) { gameState.balance -= 500; alert('Развод оформлен.'); gameState.spouse = null; updateUI(); } else alert('Нужно 500 $');}function adminGiveMoney() { gameState.balance += 1000000; updateUI(); alert('⭐ Выдан 1,000,000 $!'); }function adminResetSave() { if (confirm('Сбросить игру?')) { localStorage.removeItem('littlerp_v6_save'); location.reload(); } }function switchScreen(screenName) {if (screenName === 'admin' && gameState.username !== OWNER_NICK) return alert("Доступ запрещен!");document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));document.querySelectorAll('.nav-bar .nav-item').forEach(n => n.classList.remove('active'));document.getElementById(screen-${screenName}).classList.add('active');const idx = { profile: 0, job: 1, cars: 2, chat: 3, admin: 4 };const navItems = document.querySelectorAll('.nav-bar .nav-item');if (navItems[idx[screenName]]) navItems[idx[screenName]].classList.add('active');}
